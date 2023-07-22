@@ -1,0 +1,75 @@
+module traffic_light_controller(
+    input clk,             // Clock input
+    input rst,             // Reset input
+    output reg red,        // Red light output
+    output reg green,      // Green light output
+    output reg yellow      // Yellow light output
+);
+
+// Enumerate the states for the traffic light controller
+typedef enum logic [1:0] {
+    STATE_RED,
+    STATE_GREEN,
+    STATE_YELLOW
+} state_t;
+
+// Define the current state and next state variables
+reg [1:0] current_state, next_state;
+
+// Initialize the current state to RED when the module is first instantiated
+initial begin
+    current_state = STATE_RED;
+end
+
+// Sequential logic for state transition
+always @(posedge clk or posedge rst) begin
+    if (rst) begin
+        current_state <= STATE_RED;
+    end else begin
+        current_state <= next_state;
+    end
+end
+
+// Combinational logic to determine the next state based on the current state
+always @(*) begin
+    case (current_state)
+        STATE_RED: next_state = STATE_GREEN;
+        STATE_GREEN: next_state = STATE_YELLOW;
+        STATE_YELLOW: next_state = STATE_RED;
+        default: next_state = STATE_RED;
+    endcase
+end
+
+// Output logic for traffic light signals
+always @(posedge clk or posedge rst) begin
+    if (rst) begin
+        red <= 1'b1;
+        green <= 1'b0;
+        yellow <= 1'b0;
+    end else begin
+        case (current_state)
+            STATE_RED: begin
+                red <= 1'b1;
+                green <= 1'b0;
+                yellow <= 1'b0;
+            end
+            STATE_GREEN: begin
+                red <= 1'b0;
+                green <= 1'b1;
+                yellow <= 1'b0;
+            end
+            STATE_YELLOW: begin
+                red <= 1'b0;
+                green <= 1'b0;
+                yellow <= 1'b1;
+            end
+            default: begin
+                red <= 1'b1;
+                green <= 1'b0;
+                yellow <= 1'b0;
+            end
+        endcase
+    end
+end
+
+endmodule
